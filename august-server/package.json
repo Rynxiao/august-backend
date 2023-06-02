@@ -1,0 +1,26 @@
+{
+  "name": "august-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geshan/nodejs-sqlite.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/geshan/nodejs-sqlite/issues"
+  },
+  "homepage": "https://github.com/geshan/nodejs-sqlite#readme",
+  "dependencies": {
+    "better-sqlite3": "^8.0.0",
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  }
+}
