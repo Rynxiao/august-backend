@@ -14,9 +14,8 @@
 				<el-table-column prop="liked" label="是否收藏" width="55" :formatter="formatLiked"></el-table-column>
 				<el-table-column prop="read" label="是否已读" width="55" :formatter="formatRead"></el-table-column>
 				<el-table-column prop="type" label="类型" width="75" :formatter="formatType"></el-table-column>
-				<el-table-column prop="createTime" label="创建时间" :formatter="formatTime"></el-table-column>
-				<el-table-column prop="modifyTime" label="修改时间" :formatter="formatTime"></el-table-column>
-				<el-table-column prop="deleted" label="软删除" width="55" :formatter="formatDeleted"></el-table-column>
+				<el-table-column prop="createdAt" label="创建时间" :formatter="formatCreatedAt"></el-table-column>
+				<el-table-column prop="updatedAt" label="修改时间" :formatter="formatUpdatedAt"></el-table-column>
 				<el-table-column label="操作" width="220" align="center">
 					<template #default="scope">
 						<el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
@@ -133,15 +132,15 @@ interface TableItem {
 	liked: number;
 	read: number;
 	type: string;
-	createTime: string;
-	modifyTime: string;
+	createdAt: string;
+	updatedAt: string;
 	deleted: number;
 }
 
 interface TypeItem {
 	id: string;
 	title: string;
-	createTime: string;
+	createdAt: string;
 }
 
 const query = reactive({
@@ -241,8 +240,7 @@ const handleEdit = (index: number, row: any) => {
   editVisible.value = true;	
 };
 const saveEdit = () => {
-  updateSense({ 
-    id: form.id, 
+  updateSense(form.id, { 
     title: form.title, 
     content: form.content,
     cover: form.cover,
@@ -255,8 +253,12 @@ const saveEdit = () => {
   });
 };
 
-const formatTime = (row: any) => {
-  return new Date(row.createTime).toLocaleDateString("zh-CN");
+const formatCreatedAt = (row: any) => {
+  return new Date(row.createdAt).toLocaleDateString("zh-CN");
+}
+
+const formatUpdatedAt = (row: any) => {
+  return new Date(row.updatedAt).toLocaleDateString("zh-CN");
 }
 
 const formatType = (row: any) => {
@@ -269,7 +271,6 @@ const formatText = (text: string) => {
 }
 const formatLiked = (row: any) => formatText(row.liked);
 const formatRead = (row: any) => formatText(row.read);
-const formatDeleted = (row: any) => formatText(row.deleted);
 </script>
 
 <style scoped>

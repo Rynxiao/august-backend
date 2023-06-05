@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:14.8
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - POSTGRES_DB=$POSTGRES_DATABASE
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    ports:
+      - $POSTGRES_LOCAL_PORT:$POSTGRES_DOCKER_PORT
+    volumes:
+      - ./data:/var/lib/postgresql/data
+  app:
+    depends_on:
+      - postgresdb
+    build: ./august-server
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    environment:
+      - DB_HOST=postgresdb
+      - DB_USER=$POSTGRES_USER
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+      - DB_NAME=$POSTGRES_DATABASE
+      - DB_PORT=$POSTGRES_DOCKER_PORT
+    stdin_open: true
+    tty: true
+
+  admin:
+    depends_on:
+      - app
+    build: ./august-admin
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $ADMIN_LOCAL_PORT:$ADMIN_LOCAL_PORT
+    environment:
+      - PROXY_PROT=$NODE_DOCKER_PORT

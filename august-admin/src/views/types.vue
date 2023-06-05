@@ -9,7 +9,7 @@
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="ID" width="185" show-overflow-tooltip="true" align="center"></el-table-column>
 				<el-table-column prop="title" label="类别"></el-table-column>
-				<el-table-column prop="createTime" label="创建时间" :formatter="formatTime"></el-table-column>
+				<el-table-column prop="createdAt" label="创建时间" :formatter="formatTime"></el-table-column>
 				<el-table-column label="操作" width="220" align="center">
 					<template #default="scope">
 						<el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
@@ -69,12 +69,11 @@ import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
 import { addType, fetchAllTypes, deleteType, updateType } from '../api/types';
-import { uniqueId } from 'lodash';
 
 interface TableItem {
 	id: number;
 	title: string;
-	createTime: string;
+	createdAt: string;
 }
 
 const query = reactive({
@@ -87,8 +86,9 @@ const pageTotal = ref(0);
 // 获取表格数据
 const getData = () => {
 	fetchAllTypes(query.pageIndex).then(res => {
+		console.log('res', res);
 		tableData.value = res.data.data;
-		pageTotal.value = res.data.meta.total || 50;
+		pageTotal.value = res.data.meta.total;
 	});
 };
 getData();
@@ -117,6 +117,7 @@ const saveAdd = () => {
     title: addForm.title,
   }).then(() => {
 		addVisible.value = false;
+    addForm.title = '';
 		ElMessage.success(`新增成功`);
 	}).then(() => {
     handleSearch();
@@ -153,7 +154,7 @@ const handleEdit = (index: number, row: any) => {
   editVisible.value = true;	
 };
 const saveEdit = () => {
-  updateType({ id: form.id, title: form.title }).then(() => {
+  updateType(form.id, form.title).then(() => {
     editVisible.value = false;
 	  ElMessage.success(`修改第 ${idx + 1} 行成功`);
   }).then(() => {
@@ -162,7 +163,7 @@ const saveEdit = () => {
 };
 
 const formatTime = (row: any) => {
-  return new Date(row.createTime).toLocaleString("zh-CN");
+  return new Date(row.createdAt).toLocaleString("zh-CN");
 }
 </script>
 

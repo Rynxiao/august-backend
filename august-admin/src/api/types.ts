@@ -20,14 +20,15 @@ export const deleteType = (id: string) => {
     return request({
         url: '/api/types/delete',
         method: 'post',
-        data: { id }
+        params: { id }
     });
 }
 
-export const updateType = (type: any) => {
+export const updateType = (id: string, title: any) => {
     return request({
         url: '/api/types/update',
         method: 'post',
-        data: type
+        data: { title },
+        params: { id }
     });
 }

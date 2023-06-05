@@ -1,70 +1,119 @@
-const uuid = require('uuid');
-const db = require('../services/db');
-const config = require('../config');
+const db = require("../models");
+const Type = db.types;
+const Op = db.Sequelize.Op;
 
-function getMultiple(page = 1) {
-  const offset = (page - 1) * config.listPerPage;
-  const data = db.query(`SELECT * FROM sense_type LIMIT ?,?`, [offset, config.listPerPage]);
-  const total = db.count(`SELECT count(*) total FROM sense_type`);
-  const meta = {page, total: total};
-
-  return {
-    data,
-    meta
-  }
-}
-
-function create(typeObj) {
-  const now = Date.now();
+exports.create = (req, res) => {
   const typeObjToCreate = {
-    id: uuid.v4(), 
-    title: typeObj.title, 
-    createTime: now, 
+    title: req.body.title,
   };
-  const result = db.run(
-    'INSERT INTO sense_type VALUES (@id, @title, @createTime)', 
-    typeObjToCreate
-  );
-  
-  let message = 'Error in creating type';
-  if (result.changes) {
-    message = 'Type created successfully';
-  }
 
-  return {message};
-}
+  Type.create(typeObjToCreate)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Type."
+      });
+    });
+};
 
-function update(typeObjToUpdate) {
-  const result = db.run(
-    "UPDATE sense_type SET title = ? WHERE id = ?", 
-    [typeObjToUpdate.title, typeObjToUpdate.id]
-  );
-  
-  let message = 'Error in updating type';
-  if (result.changes) {
-    message = 'Type updated successfully';
-  }
+exports.findAll = async (req, res) => {
+  const page = req.query.page ? req.query.page : 1;
+  const title = req.query.title;
+  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+  const offset = (page - 1) * 20;
 
-  return {message};
-}
+  const total = await Type.count();
+  const meta = { page, total: total };
 
-function deleteType(id) {
-  const result = db.run(
-    "DELETE FROM sense_type WHERE id = ?", 
-    id
-  );
-  
-  let message = 'Error in deleting type';
-  if (result.changes) {
-    message = 'Type delete successfully';
-  }
+  Type.findAll({ where: condition, offset, limit: 20 })
+    .then(data => {
+      res.send({data, meta});
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving types."
+      });
+    });
+};
 
-  return {message};
-}
+exports.findOne = (req, res) => {
+  const id = req.query.id;
 
-module.exports = {
-  getMultiple,
-  create,
-  update,
-  deleteType
-}
+  Type.findByPk(id)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving Type with id=" + id
+      });
+    });
+};
+
+exports.update = (req, res) => {
+  const id = req.query.id;
+
+  Type.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Type was updated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot update Type with id=${id}. Maybe Type was not found or req.body is empty!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error updating Type with id=" + id
+      });
+    });
+};
+
+exports.delete = (req, res) => {
+  const id = req.query.id;
+
+  Type.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Type was deleted successfully!"
+        });
+      } else {
+        res.send({
+          message: `Cannot delete Type with id=${id}. Maybe Type was not found!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Type with id=" + id
+      });
+    });
+};
+
+exports.deleteAll = (req, res) => {
+  Type.destroy({
+    where: {},
+    truncate: false
+  })
+    .then(nums => {
+      res.send({ message: `${nums} Types were deleted successfully!` });
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while removing all types."
+      });
+    });
+};

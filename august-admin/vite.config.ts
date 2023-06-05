@@ -22,10 +22,21 @@ export default defineConfig({
 	server: {
 		proxy: {
 		  "/api": {
-        target: "http://localhost:3000",
+        target: `http://localhost:${process.env.PROXY_PROT}`,
         changeOrigin: true,
         secure: false,
 		  },
 		},
   },
+  preview: {
+    host: true,
+    port: process.env.ADMIN_LOCAL_PORT,
+    proxy: {
+		  "/api": {
+        target: `http://app:${process.env.PROXY_PROT}`,
+        changeOrigin: true,
+        secure: false,
+		  },
+		},
+  }
 });

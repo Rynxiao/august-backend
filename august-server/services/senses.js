@@ -1,84 +1,125 @@
-const uuid = require('uuid');
-const db = require('../services/db');
-const config = require('../config');
+const db = require("../models");
+const Sense = db.senses;
+const Op = db.Sequelize.Op;
 
-function getMultiple(page = 1) {
-  const offset = (page - 1) * config.listPerPage;
-  const data = db.query(`SELECT * FROM common_sense WHERE deleted = 0 LIMIT ?,?`, [offset, config.listPerPage]);
-  const total = db.count(`SELECT count(*) total FROM common_sense WHERE deleted = 0`);
-  const meta = {page, total};
-
-  return {
-    data,
-    meta
-  }
-}
-
-function create(senseObj) {
-  const now = Date.now();
-  const senseObjToCreate = {
-    id: uuid.v4(), 
-    title: senseObj.title, 
-    content: senseObj.content,
-    cover: senseObj.cover,
-    liked: 0, 
-    read: 0, 
-    type: senseObj.type,
-    createTime: now, 
-    modifyTime: now, 
-    deleted: 0
+exports.create = (req, res) => {
+  const sense = {
+    title: req.body.title,
+    content: req.body.content,
+    cover: req.body.cover,
+    type: req.body.type,
   };
-  const result = db.run(
-    'INSERT INTO common_sense VALUES (@id, @title, @content, @cover, @liked, @read, @type, @createTime, @modifyTime, @deleted)', 
-    senseObjToCreate
-  );
-  
-  let message = 'Error in creating sense';
-  if (result.changes) {
-    message = 'Sense created successfully';
-  }
 
-  return {message};
-}
+  console.log('create sense', sense);
 
-function update(senseObjToUpdate) {
-  const result = db.run(
-    "UPDATE common_sense SET title = ?, content = ?, cover = ?, type = ?, modifyTime = ? WHERE id = ?", 
-    [
-      senseObjToUpdate.title,
-      senseObjToUpdate.content, 
-      senseObjToUpdate.cover, 
-      senseObjToUpdate.type, 
-      Date.now(),
-      senseObjToUpdate.id
-    ]
-  );
-  
-  let message = 'Error in updating type';
-  if (result.changes) {
-    message = 'Type updated successfully';
-  }
+  Sense.create(sense)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Sense."
+      });
+    });
+};
 
-  return {message};
-}
+exports.findAll = async (req, res) => {
+  const page = req.query.page ? req.query.page : 1;
+  const title = req.query.title;
+  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+  const offset = (page - 1) * 20;
 
-function deleteSense(id) {
-  const result = db.run(
-    "UPDATE common_sense SET deleted = 1 WHERE id = ?", 
-    [id]
-  );
-  
-  let message = 'Error in deleting sense';
-  if (result.changes) {
-    message = 'Type sense successfully';
-  }
+  const total = await Sense.count();
 
-  return {message};
-}
+  const meta = { page, total: total };
 
-module.exports = {
-  getMultiple,
-  create,
-  update,
-  deleteSense
-}
+  Sense.findAll({ where: condition, offset, limit: 20 })
+    .then(data => {
+      res.send({data, meta});
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving senses."
+      });
+    });
+};
+
+exports.findOne = (req, res) => {
+  const id = req.query.id;
+
+  Sense.findByPk(id)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving Sense with id=" + id
+      });
+    });
+};
+
+exports.update = (req, res) => {
+  const id = req.query.id;
+
+  Sense.update(req.body, {
+    where: { id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Sense was updated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot update Sense with id=${id}. Maybe Sense was not found or req.body is empty!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error updating Sense with id=" + id
+      });
+    });
+};
+
+exports.delete = (req, res) => {
+  const id = req.query.id;
+
+  Sense.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Sense was deleted successfully!"
+        });
+      } else {
+        res.send({
+          message: `Cannot delete Sense with id=${id}. Maybe Sense was not found!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Sense with id=" + id
+      });
+    });
+};
+
+exports.deleteAll = (req, res) => {
+  Sense.destroy({
+    where: {},
+    truncate: false
+  })
+    .then(nums => {
+      res.send({ message: `${nums} Senses were deleted successfully!` });
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while removing all senses."
+      });
+    });
+};

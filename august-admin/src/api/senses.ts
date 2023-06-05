@@ -20,14 +20,15 @@ export const deleteSense = (id: string) => {
     return request({
         url: '/api/senses/delete',
         method: 'post',
-        data: { id }
+        params: { id }
     });
 }
 
-export const updateSense = (sense: any) => {
+export const updateSense = (id: string, sense: any) => {
     return request({
         url: '/api/senses/update',
         method: 'post',
-        data: sense
+        data: sense,
+        params: { id }
     });
 }
