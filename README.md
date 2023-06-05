@@ -4,13 +4,21 @@
 
 ### August-server
 
-使用这个命令 `npm start` 启动服务，暴露api接口，供管理系统使用
+暴露api接口，供管理系统使用
 
 ### August manage system
 
 主要用于常识数据管理，启动命令
 
 ```shell
-npm run dev
+cd august/
+
+docker-compose up -d
+
+## api 
+localhost:8000
+
+## manage system
+localhost:4173
 ```
 
