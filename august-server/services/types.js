@@ -21,14 +21,19 @@ exports.create = (req, res) => {
 
 exports.findAll = async (req, res) => {
   const page = req.query.page ? req.query.page : 1;
+  const pageSize = req.query.pageSize ? req.query.pageSize : 10;
   const title = req.query.title;
   var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
-  const offset = (page - 1) * 20;
+  const offset = (page - 1) * pageSize;
 
   const total = await Type.count();
   const meta = { page, total: total };
 
-  Type.findAll({ where: condition, offset, limit: 20 })
+  Type.findAll({
+    where: condition,
+    offset,
+    limit: pageSize
+  })
     .then(data => {
       res.send({data, meta});
     })

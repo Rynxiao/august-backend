@@ -1,10 +1,10 @@
 import request from '../utils/request';
 
-export const fetchAllTypes = (page: number) => {
+export const fetchAllTypes = (page: number, pageSize: number) => {
     return request({
         url: '/api/types',
         method: 'get',
-        params: { page }
+        params: { page, pageSize }
     });
 };
 

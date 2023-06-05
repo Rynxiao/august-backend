@@ -10,8 +10,6 @@ exports.create = (req, res) => {
     type: req.body.type,
   };
 
-  console.log('create sense', sense);
-
   Sense.create(sense)
     .then(data => {
       res.send(data);
@@ -26,15 +24,16 @@ exports.create = (req, res) => {
 
 exports.findAll = async (req, res) => {
   const page = req.query.page ? req.query.page : 1;
+  const pageSize = req.query.pageSize ? req.query.pageSize : 10;
   const title = req.query.title;
   var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
-  const offset = (page - 1) * 20;
+  const offset = (page - 1) * pageSize;
 
   const total = await Sense.count();
 
   const meta = { page, total: total };
 
-  Sense.findAll({ where: condition, offset, limit: 20 })
+  Sense.findAll({ where: condition, offset, limit: pageSize })
     .then(data => {
       res.send({data, meta});
     })

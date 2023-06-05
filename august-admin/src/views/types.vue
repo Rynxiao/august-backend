@@ -85,8 +85,7 @@ const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 // 获取表格数据
 const getData = () => {
-	fetchAllTypes(query.pageIndex).then(res => {
-		console.log('res', res);
+	fetchAllTypes(query.pageIndex, 10).then(res => {
 		tableData.value = res.data.data;
 		pageTotal.value = res.data.meta.total;
 	});

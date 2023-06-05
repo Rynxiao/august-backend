@@ -158,7 +158,7 @@ const getData = () => {
 		pageTotal.value = res.data.meta.total;
 	});
 
-  fetchAllTypes(query.pageIndex).then(res => {
+  fetchAllTypes(1, 1000).then(res => {
 		typesData.value = res.data.data;
 	});
 };
@@ -200,7 +200,7 @@ const saveAdd = () => {
     addForm.type = '';
 		ElMessage.success(`新增成功`);
 	}).then(() => {
-    handleSearch();
+    getData();
   });
 };
 
