@@ -33,7 +33,14 @@ exports.findAll = async (req, res) => {
 
   const meta = {page, total: total};
 
-  Sense.findAll({where: condition, offset, limit: pageSize})
+  Sense.findAll({
+    where: condition,
+    offset,
+    limit: pageSize,
+    order: [
+      ['createdAt', 'DESC']
+    ]
+  })
     .then(data => {
       res.send({data, meta});
     })
@@ -53,7 +60,10 @@ exports.findByType = async (req, res) => {
       type: {
         [Op.eq]: typeId
       }
-    }
+    },
+    order: [
+      ['createdAt', 'DESC']
+    ]
   };
 
   const total = await Sense.count(options);
@@ -67,15 +77,21 @@ exports.findByType = async (req, res) => {
   });
 }
 
-exports.findByLiked = (req, res) => {
-  Sense.findAll({
+exports.findByLiked = async (req, res) => {
+  const options = {
     where: {
       liked: {
         [Op.eq]: 1
       }
-    }
-  }).then(data => {
-    res.send({data});
+    },
+    order: [
+      ['createdAt', 'DESC']
+    ]
+  };
+  const total = await Sense.count(options);
+
+  Sense.findAll(options).then(data => {
+    res.send({data, meta: { page: 1, total }});
   }).catch(err => {
     res.status(500).send({
       message:

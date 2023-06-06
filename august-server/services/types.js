@@ -32,7 +32,10 @@ exports.findAll = async (req, res) => {
   Type.findAll({
     where: condition,
     offset,
-    limit: pageSize
+    limit: pageSize,
+    order: [
+      ['createdAt', 'ASC']
+    ]
   })
     .then(data => {
       res.send({data, meta});
