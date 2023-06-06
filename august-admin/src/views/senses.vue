@@ -88,11 +88,6 @@
 					<md-editor class="mgb20" v-model="addForm.content" />
 				</el-form-item>
 			</el-form>
-			<el-form label-width="70px">
-				<el-form-item label="图片链接">
-					<el-input v-model="addForm.cover"></el-input>
-				</el-form-item>
-			</el-form>
       <el-form label-width="70px">
 				<el-form-item label="类型">
 					<el-select v-model="addForm.type" placeholder="请选择">
@@ -134,7 +129,6 @@ interface TableItem {
 	type: string;
 	createdAt: string;
 	updatedAt: string;
-	deleted: number;
 }
 
 interface TypeItem {
@@ -180,8 +174,7 @@ const addVisible = ref(false);
 let addForm = reactive({
 	title: '',
   content: '',
-  cover: '',
-  type: ''
+  type: '',
 });
 const handleAdd = () => {
 	addVisible.value = true;
@@ -190,13 +183,11 @@ const saveAdd = () => {
 	addSense({ 
     title: addForm.title, 
     content: addForm.content,
-    cover: addForm.cover,
     type: addForm.type,
   }).then(() => {
 		addVisible.value = false;
     addForm.title = '';
     addForm.content = '';
-    addForm.cover = '';
     addForm.type = '';
 		ElMessage.success(`新增成功`);
 	}).then(() => {

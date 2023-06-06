@@ -1,5 +1,7 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
+
+const { random } = require('../utils');
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('common_sense', {
@@ -16,7 +18,8 @@ module.exports = {
         type: Sequelize.TEXT
       },
       cover: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: `https://picsum.photos/id/${random(0, 1050)}/360/170`,
       },
       liked: {
         type: Sequelize.INTEGER,
