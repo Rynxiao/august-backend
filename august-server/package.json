@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "db:seed:all": "sequelize-cli db:seed:all",
+    "db:migrate": "sequelize-cli db:migrate"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,8 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^5.21.2",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.1"
   }
 }
