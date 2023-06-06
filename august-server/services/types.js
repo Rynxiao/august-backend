@@ -1,5 +1,5 @@
-const db = require("../models1");
-const Type = db.types;
+const db = require("../models");
+const Type = db.Type;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {

@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Sense',
+    tableName: 'common_sense',
     indexes: [{ unique: true, fields: ['title', 'content'] }]
   });
   return Sense;

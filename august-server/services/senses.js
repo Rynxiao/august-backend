@@ -1,5 +1,5 @@
-const db = require("../models1");
-const Sense = db.senses;
+const db = require("../models");
+const Sense = db.Sense;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -26,14 +26,14 @@ exports.findAll = async (req, res) => {
   const page = req.query.page ? req.query.page : 1;
   const pageSize = req.query.pageSize ? req.query.pageSize : 10;
   const title = req.query.title;
-  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+  var condition = title ? {title: {[Op.like]: `%${title}%`}} : null;
   const offset = (page - 1) * pageSize;
 
   const total = await Sense.count();
 
-  const meta = { page, total: total };
+  const meta = {page, total: total};
 
-  Sense.findAll({ where: condition, offset, limit: pageSize })
+  Sense.findAll({where: condition, offset, limit: pageSize})
     .then(data => {
       res.send({data, meta});
     })
@@ -44,6 +44,45 @@ exports.findAll = async (req, res) => {
       });
     });
 };
+
+exports.findByType = async (req, res) => {
+  const typeId = req.query.typeId;
+
+  const options = {
+    where: {
+      type: {
+        [Op.eq]: typeId
+      }
+    }
+  };
+
+  const total = await Sense.count(options);
+  Sense.findAll(options).then(data => {
+    res.send({data, meta: { page: 1, total }});
+  }).catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving senses."
+    });
+  });
+}
+
+exports.findByLiked = (req, res) => {
+  Sense.findAll({
+    where: {
+      liked: {
+        [Op.eq]: 1
+      }
+    }
+  }).then(data => {
+    res.send({data});
+  }).catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving senses."
+    });
+  });
+}
 
 exports.findOne = (req, res) => {
   const id = req.query.id;
@@ -63,10 +102,10 @@ exports.update = (req, res) => {
   const id = req.query.id;
 
   Sense.update(req.body, {
-    where: { id }
+    where: {id}
   })
     .then(num => {
-      if (num == 1) {
+      if (num === 1) {
         res.send({
           message: "Sense was updated successfully."
         });
@@ -87,7 +126,7 @@ exports.delete = (req, res) => {
   const id = req.query.id;
 
   Sense.destroy({
-    where: { id: id }
+    where: {id: id}
   })
     .then(num => {
       if (num == 1) {
@@ -113,7 +152,7 @@ exports.deleteAll = (req, res) => {
     truncate: false
   })
     .then(nums => {
-      res.send({ message: `${nums} Senses were deleted successfully!` });
+      res.send({message: `${nums} Senses were deleted successfully!`});
     })
     .catch(err => {
       res.status(500).send({
