@@ -4,7 +4,7 @@
 
 ### August-server
 
-暴露api接口，供管理系统使用
+暴露api接口，供管理系统使用，首先将`.env.sample`改为`.env`，然后将其中的值替换为自己想要的。
 
 ### August manage system
 
